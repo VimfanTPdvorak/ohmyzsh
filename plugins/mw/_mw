@@ -1,0 +1,13 @@
+#compdef mw
+
+_mw() {
+    search_tag() {
+        sed -n "/^[^\t]*$words[3]/p" "$MWIKI_DIR/.vimwiki_tags" | \
+            awk '{print $1}'
+    }
+
+    _arguments \
+        {-h,--help}'[Display usage info]' \
+        {-c,--convention}'[Print the MWiki tag label convention]' \
+        {-t,--tag}'[Specify a Vimwiki tag tobe complete]:tag:($(search_tag))'
+}
