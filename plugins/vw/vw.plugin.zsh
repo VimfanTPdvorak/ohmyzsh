@@ -24,7 +24,7 @@ function vw {
     _vw::main
 }
 
-function _mw::main {
+function _vw::main {
     if (( $#arg_wiki )) && (( ! $#arg_tag_label ));then
         if [[ $arg_wiki[-1] == "Personal" ]];then
             pushd $NEKOMI_WIKI_DIR > /dev/null
