@@ -70,7 +70,7 @@ ZSH_THEME="robbyrussell"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(git vi-mode starship pz mw)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -102,3 +102,13 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# omz vi-mode
+# For more info: ~/.oh-my-zsh/plugins/vi-mode/README.md
+
+VI_MODE_SET_CURSOR=true
+
+VI_MODE_CURSOR_NORMAL=1
+VI_MODE_CURSOR_VISUAL=6
+VI_MODE_CURSOR_INSERT=5
+VI_MODE_CURSOR_OPPEND=0

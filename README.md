@@ -90,11 +90,11 @@ Twitter), and join us on [Discord](https://discord.gg/ohmyzsh).
 Oh My Zsh is installed by running one of the following commands in your terminal. You can install this via the
 command-line with either `curl`, `wget` or another similar tool.
 
-| Method    | Command                                                                                           |
-| :-------- | :------------------------------------------------------------------------------------------------ |
-| **curl**  | `sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"` |
-| **wget**  | `sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"`   |
-| **fetch** | `sh -c "$(fetch -o - https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"` |
+| Method    | Command                                                                                                             |
+| :-------- | :------------------------------------------------------------------------------------------------------------------ |
+| **curl**  | `sh -c "$(curl -fsSL https://raw.githubusercontent.com/VimfanTPdvorak/ohmyzsh/refs/heads/master/tools/install.sh)"` |
+| **wget**  | `sh -c "$(wget -O- https://raw.githubusercontent.com/VimfanTPdvorak/ohmyzsh/refs/heads/master/tools/install.sh)"`   |
+| **fetch** | `sh -c "$(fetch -o - https://raw.githubusercontent.com/VimfanTPdvorak/ohmyzsh/refs/heads/master/tools/install.sh)"` |
 
 Alternatively, the installer is also mirrored outside GitHub. Using this URL instead may be required if you're
 in a country like China or India (for certain ISPs), that blocks `raw.githubusercontent.com`:
@@ -114,7 +114,7 @@ It's a good idea to inspect the install script from projects you don't yet know.
 downloading the install script first, looking through it so everything looks normal, then running it:
 
 ```sh
-wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+wget https://raw.githubusercontent.com/VimfanTPdvorak/ohmyzsh/refs/heads/master/tools/install.sh
 sh install.sh
 ```
 

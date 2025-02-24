@@ -1,0 +1,32 @@
+#compdef vw
+
+_vw() {
+    local ctags_personal="$HOME/Documents/vimwiki/doc/.vimwiki_tags"
+    local ctags_mwiki="$HOME/Documents/Office.wiki/team/doc/.vimwiki_tags"
+
+    search_tag() {
+        case $words[2] in
+            -w|--wiki)
+                if [[ $words[3] == "Personal" ]];then
+                    sed -n "/^[^\s]*$words[5]/p" "$ctags_personal"|awk '{print $1}'
+                else
+                    sed -n "/^[^\s]*$words[5]/p" "$ctags_mwiki"|awk '{print $1}'
+                fi
+                ;;
+            *)
+                tags=$(sed -n "/^[^\s]*$words[3]/p" "$ctags_personal"|awk '{print $1}')
+                if [[ -z "$tags" ]];then
+                    tags=$(sed -n "/^[^\s]*$words[3]/p" "$ctags_mwiki"|awk '{print $1}')
+                    NEKOMI_WIKI_DIR=$(dirname $ctags_mwiki)
+                else
+                    NEKOMI_WIKI_DIR=$(dirname $ctags_personal)
+                fi
+                echo "$tags"
+                ;;
+        esac
+    }
+
+    _arguments \
+        {-w,--wiki}'[Choose a Vimwiki to search for]:wiki:(Personal MWiki)' \
+        {-t,--tag}'[Specify a Vimwiki tag tobe complete]:tag:($(search_tag))'
+}
