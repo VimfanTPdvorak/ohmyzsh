@@ -32,14 +32,14 @@ function _vw::main {
             popd
         else
             pushd $MWIKI_DIR > /dev/null
-            vim -c "tag momIndex" -c "normal zM2zrgg5jzo"
+            vim -c "set tags+=$MWIKI_DIR/.vimwiki_tags|tag momIndex|normal zM2zrgg5jzo"
             popd
         fi
     else
         cd $NEKOMI_WIKI_DIR
 
         if (( $#arg_tag_label )); then
-            vim -c "tag $arg_tag_label[-1]"
+            vim -c "set tags+=$NEKOMI_WIKI_DIR/.vimwiki_tags|tag $arg_tag_label[-1]"
         else
             vim diary/diary.wiki -c "normal zM2zrgg3jzo"
         fi
