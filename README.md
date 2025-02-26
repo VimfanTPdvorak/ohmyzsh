@@ -5,13 +5,15 @@
 Repository ini adalah fork dari ohmyzsh github dan kita modifikasi untuk
 kebutuhan workflow internal.
 
-Untuk awal sekali modifikasi yang dilakukan adalah dengan menambahkan beberapa
-plugin berikut ini dan menambahkan ketiga plugins berikut ini sebagai default
-plugins OMZ:
+Modifikasi yang dilakukan adalah dengan menambahkan dua plugin `mw` dan `pz` dan
+menambahkannya bersama plugin starship sebagai default plugins OMZ:
 
 - mw: MWiki CLI
 - pz: Password store CLI extension
 - starship: The minimal, blazing-fast, and infinitely customizable prompt for any shell!
+
+Sehingga default plugin OMZ yang terkonfigurasi adalah `git`, `starship`, `mw`,
+dan `pz`.
 
 ## Pre-requisites
 
@@ -22,9 +24,13 @@ plugins OMZ:
 
 ## Instalasi
 
-```bash
-unset ZSH
-rm -rf ~/.oh-my-zsh
-git clone --depth 1 https://panda.apikkoho.com/Iron.Man/ohmyzsh.git /tmp/ohmyzsh
-sh /tmp/ohmyzsh/tools/install.sh
-```
+1. Bila sudah pernah melakukan instalasi OMZ Official sebelum-nya, maka jalankan
+   dua perintah berikut ini:
+    ```bash
+    unset ZSH
+    rm -rf ~/.oh-my-zsh
+    ```
+2. Jalankan perintah ini untuk install OMZ:
+    ```bash
+    sh -c "$(curl -fsSL https://panda.apikkoho.com/Iron.Man/ohmyzsh/raw/branch/office/tools/install.sh)"
+    ```
