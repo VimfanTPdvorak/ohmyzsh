@@ -66,11 +66,11 @@ function _mw::main {
         echo "xAlert : Task has been followed up."
     elif (( $#arg_tag_label ));then
         pushd $MWIKI_DIR > /dev/null
-        vim -c "tag $arg_tag_label[-1]"
+        vim -c "set tags+=$MWIKI_DIR/.vimwiki_tags|tag $arg_tag_label[-1]"
         popd > /dev/null
     else
         pushd $MWIKI_DIR > /dev/null
-        vim -c "tag momIndex" -c "normal zM2zrgg5jzo"
+        vim -c "set tags+=$MWIKI_DIR/.vimwiki_tags|tag momIndex|normal zM2zrgg5jzo"
         popd > /dev/null
     fi
 }
