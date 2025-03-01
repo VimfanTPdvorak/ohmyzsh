@@ -86,19 +86,26 @@ function share_passwords () {
     return 0
 }
 
-function get_password_from_cliphist() {
-    if which cliphist > /dev/null 2>&1;then
-        pwd=$(cliphist list|head -1|sed 's/^[0-9]*[[:blank:]]*//')
-    fi
-    return 0
+function update_pass_to_be_auto-deleted_record() {
+    echo "${clip2pz}" | gpg -eao $HOME/.pz --yes \
+        -r $(gpg -K|grep ultimate|sed 's/.*<\(.*\)>.*/\1/')
 }
 
-function schedule_remove_password_record_from_cliphist() {
+function register_retrieved_pass_to_be_auto-deleted() {
     if which cliphist > /dev/null 2>&1;then
-        (\
-            sleep 45 && \
-            cliphist delete-query "$pwd" \
-            ) &
+        pwd=$1
+        if [[ -n $pwd ]];then
+            if [[ -f $HOME/.pz ]];then
+                if [[ -z $(gpg -qd $HOME/.pz|grep "^${pwd}$") ]];then
+                    clip2pz=$(gpg -qd $HOME/.pz)
+                    clip2pz="${clip2pz}\n${pwd}"
+                    update_pass_to_be_auto-deleted_record
+                fi
+            else
+                clip2pz="${pwd}"
+                update_pass_to_be_auto-deleted_record
+            fi
+        fi
     fi
     return 0
 }
@@ -128,13 +135,14 @@ function _pz::main {
                     return 0;;
                 --copy|-c)
                     if test "$OTPCOPYMODE" = "true";then
+                        pwd=$(pass otp $pwdRecord)
                         pass otp -c $pwdRecord
                         unset OTPCOPYMODE
                     else
+                        pwd=$(pass $pwdRecord|head -1)
                         pass -c $pwdRecord
                     fi
-                    get_password_from_cliphist
-                    schedule_remove_password_record_from_cliphist
+                    register_retrieved_pass_to_be_auto-deleted "$pwd"
                     return 0;;
                 --edit|-e)
                     pass edit $pwdRecord
@@ -158,9 +166,9 @@ function _pz::main {
                         echo "Add something like this: 'cmd: ssh jack@dummy.apikk.oho' to a password"
                         echo "store record that you wanted to 'pz --login' to."
                     else
+                        pwd=$(pass $pwdRecord|head -1)
                         pass -c $pwdRecord
-                        get_password_from_cliphist
-                        schedule_remove_password_record_from_cliphist
+                        register_retrieved_pass_to_be_auto-deleted "$pwd"
                         eval "$cmd"
                     fi
                     return 0;;
