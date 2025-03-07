@@ -44,7 +44,8 @@ function reconstruct_auto_complete_script {
         rm /tmp/src.$$
         rm /tmp/subcmd.$$
 
-        echo "The autocompletion script for pz has been updated. Open a new zsh shell in order for the changes to takes effect."
+        echo "The autocompletion script for pz has been updated."
+        echo "Open a new zsh shell in order for the changes to takes effect."
     fi
     return 0
 }
