@@ -5,15 +5,16 @@
 Repository ini adalah fork dari ohmyzsh github dan kita modifikasi untuk
 kebutuhan workflow internal.
 
-Modifikasi yang dilakukan adalah dengan menambahkan dua plugin `mw` dan `pz` dan
-menambahkannya bersama plugin starship sebagai default plugins OMZ:
+Modifikasi yang dilakukan adalah dengan menambahkan plugin `mw`, `pz`,
+`starship`, dan `gpgOpen` sebagai default plugins OMZ:
 
 - mw: MWiki CLI
 - pz: Password store CLI extension
+- gpgOpen: CLI untuk secara aman membuka GPG encrypted file
 - starship: The minimal, blazing-fast, and infinitely customizable prompt for any shell!
 
 Sehingga default plugin OMZ yang terkonfigurasi adalah `git`, `starship`, `mw`,
-dan `pz`.
+`pz`, dan `gpgOpen`.
 
 ## Pre-requisites
 
