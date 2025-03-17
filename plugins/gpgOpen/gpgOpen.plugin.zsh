@@ -68,7 +68,7 @@ function _gpgOpen::main {
                     IDs="$IDs -r $ID"
                 done
                 rm "${gpgFile}"
-                cmdE="gpg -eo ${gpgFile} $IDs $td/$gpgFN"
+                cmdE="gpg -eao '$gpgFile' $IDs '$td/$gpgFN'"
                 eval $cmdE
             fi
 
