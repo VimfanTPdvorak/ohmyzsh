@@ -1,0 +1,8 @@
+#compdef gpgOpen
+
+_gpgOpen() {
+    _arguments \
+        {-h,--help}'[Display usage info]' \
+        {-e,--editor}'[Force use vim or nano as the editor]:editor:("vim" "nano")' \
+        {-f,--file}'[GPG encrypted file tobe opened]:file:(${(f)"$(compgen -f)"})'
+}
