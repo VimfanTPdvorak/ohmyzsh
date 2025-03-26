@@ -36,12 +36,14 @@ function _vw::main {
             popd
         fi
     else
-        cd $NEKOMI_WIKI_DIR
+        pushd $NEKOMI_WIKI_DIR > /dev/null
 
         if (( $#arg_tag_label )); then
             vim -c "set tags+=$NEKOMI_WIKI_DIR/.vimwiki_tags|tag $arg_tag_label[-1]"
         else
             vim diary/diary.wiki -c "normal zM2zrgg3jzo"
         fi
+
+        popd
     fi
 }
