@@ -8,15 +8,18 @@ function reconstruct_auto_complete_script {
     if [ ! -f $ZSH/templates/pz.completion.template ];then
         echo "File $ZSH/templates/pz.completion.template doesn't exist"
     else
-        echo "Reconstructing pz's auto-complete index..."
+        echo -ne "\rLoading pass files with aliases..."
 
         pass grep -i -e "^ *alias:" -e "^ *info:"|sed 's/\x1b\[[0-9;]*[sumJK]//g;s/:$//' > /tmp/src.$$
+
+        m=0
+        n=$( wc -l /tmp/src.$$ | awk '{print $1}' )
+
+        echo "\rLoading pass files with aliases...[$n]"
 
         if [[ -f $HOME/_pz.index ]];then
             rm $HOME/_pz.index
         fi
-
-        spaces=$(printf ' %.0s' {1..20})
 
         while read l;do
             if [[ -z "$r" ]];then
@@ -34,11 +37,14 @@ function reconstruct_auto_complete_script {
                 a=""
                 i=""
             fi
+            (( m = m + 1 ))
+            p=$(( (m * 100) / n ))
+            echo -ne "\rReconstructing pz's auto-complete index...[$m/$n ($p%)]"
         done < /tmp/src.$$
 
         rm /tmp/src.$$
 
-        echo "The pz's autocomplete index has been reconstructed."
+        echo
     fi
     return 0
 }
