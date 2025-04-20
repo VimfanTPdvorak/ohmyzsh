@@ -83,7 +83,7 @@ function register_retrieved_pass_to_be_auto-deleted() {
 }
 
 function pz {
-    valid_args=("--copy" "-c" "--display-password" "-d" "--edit" "-e" "--info" "-i" "--login" "-l" "--otp" "-o")
+    valid_args=("--copy" "-c" "--edit" "-e" "--info" "-i" "--login" "-l" "--otp" "-o")
     _pz::main $*
 }
 
@@ -122,9 +122,6 @@ function _pz::main {
                 --info|-i)
                     echo $pwdRecord:
                     pass $pwdRecord|sed -n '2,$p'
-                    return 0;;
-                --display-password|-d)
-                    pass $pwdRecord|head -1
                     return 0;;
                 --login|-l)
                     cmd=$(

@@ -18,7 +18,7 @@ _pz() {
 		shift words
 		# Run the completion for the subcommand
 		case "${cmd}" in
-			--copy|--display-password|--info|--edit|--login|--otp|-c|-d|-i|-e|-l|-o)
+			--copy|--info|--edit|--login|--otp|-c|-i|-e|-l|-o)
                 subcommands=(
                     # Change below content by following the same pattern to suit your password
                     # store entries.
@@ -32,8 +32,6 @@ _pz() {
         subcommands=(
             "--copy:Copy a password record that matches passed string to the clipboard."
             "-c:Copy a password record that matches passed string to the clipboard."
-            "--display-password:Display the first line (password) of a pass record to stdout."
-            "-d:Display the first line (password) of a pass record to stdout."
             "--info:Display a password record information that matches passed string without showing its password."
             "-i:Display a password record information that matches passed string without showing its password."
             "--edit:Edit a password record that matches passed string."
