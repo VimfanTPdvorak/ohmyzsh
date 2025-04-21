@@ -1,0 +1,51 @@
+#compdef pz
+#
+# About this script:
+# 1. This is the ~/tools/zsh/pz zsh script autocompletion script.
+# 2. This file must be placed in the ~/.oh-my-zsh/plugins/pz folder, create the pz
+#    folder if you haven't done so yet, then copy this _pz file into that folder.
+# 3. Find the `plugins=(git npm...` line in the ~/.zshrc file and add pz inside
+#    the parantheses. It will look something like this after you addded the pz
+#    `plugins=(git npm svn-fast-info pz)`
+#
+
+_pz() {
+    local -a subcommands
+	local cmd
+	if (( CURRENT > 2)); then
+		cmd=${words[2]}
+		(( CURRENT-- ))
+		shift words
+		# Run the completion for the subcommand
+		case "${cmd}" in
+			--copy|--info|--edit|--login|--otp|-c|-i|-e|-l|-o)
+                subcommands=(
+                    # Change below content by following the same pattern to suit your password
+                    # store entries.
+                    $(cat $HOME/_pz.index)
+                )
+
+                _describe -t commands 'pz' subcommands
+				;;
+		esac
+    else
+        subcommands=(
+            "--copy:Copy a password record that matches passed string to the clipboard."
+            "-c:Copy a password record that matches passed string to the clipboard."
+            "--info:Display a password record information that matches passed string without showing its password."
+            "-i:Display a password record information that matches passed string without showing its password."
+            "--edit:Edit a password record that matches passed string."
+            "-e:Edit a password record that matches passed string."
+            "--login:Run the cmd command defined in the gpg file of the selected password store record's alias."
+            "-l:Run the cmd command defined in the gpg file of the selected password store record's alias."
+            "--otp:Prints OTP from password store record. Adds -c to copy to clipboard. Adds -q for QR code display."
+            "-o:Prints OTP from password store record. Adds -c to copy to clipboard. Adds -q for QR code display."
+            "--rebuild:Reconstruct the autocomplete script. Run this command if you have added new Password Store records."
+            "-b:Reconstruct the autocomplete script. Run this command if you have added new Password Store records."
+            "--kill:Kill gpg-agent (clear GPG cache entries)."
+            "-k:Kill gpg-agent (clear GPG cache entries)."
+        )
+
+        _describe -t commands 'pz' subcommands
+    fi
+}

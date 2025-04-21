@@ -8,13 +8,18 @@ function reconstruct_auto_complete_script {
     if [ ! -f $ZSH/templates/pz.completion.template ];then
         echo "File $ZSH/templates/pz.completion.template doesn't exist"
     else
-        echo "Reconstructing the auto-complete script and \"alias:pass-record\" index..."
+        echo -ne "\rLoading pass files with aliases..."
 
         pass grep -i -e "^ *alias:" -e "^ *info:"|sed 's/\x1b\[[0-9;]*[sumJK]//g;s/:$//' > /tmp/src.$$
 
-        echo "" > $ZSH/plugins/pz/_pz.index
+        m=0
+        n=$( wc -l /tmp/src.$$ | awk '{print $1}' )
 
-        spaces=$(printf ' %.0s' {1..20})
+        echo "\rLoading pass files with aliases...[$n]"
+
+        if [[ -f $HOME/_pz.index ]];then
+            rm $HOME/_pz.index
+        fi
 
         while read l;do
             if [[ -z "$r" ]];then
@@ -27,32 +32,26 @@ function reconstruct_auto_complete_script {
                 i=$(echo "$l"|grep -i info|awk -F':' '{print $2}'|sed 's/^\ *//;s/\ *$//')
             fi
             if [[ ! -z "$a" && ! -z "$i" ]];then
-                echo $spaces"\"$a:$i\"" >> /tmp/subcmd.$$
-                echo "$a:$r" >> $ZSH/plugins/pz/_pz.index
+                echo "$a:$r" >> $HOME/_pz.index
                 r=""
                 a=""
                 i=""
             fi
+            (( m = m + 1 ))
+            p=$(( (m * 100) / n ))
+            echo -ne "\rReconstructing pz's auto-complete index...[$m/$n ($p%)]"
         done < /tmp/src.$$
 
-        mkdir -p $ZSH/plugins/pz
-
-        sed -n '1,/store entries/p' $ZSH/templates/pz.completion.template > $ZSH/plugins/pz/_pz
-        cat /tmp/subcmd.$$|sort >> $ZSH/plugins/pz/_pz
-        sed -n '/^\ *)$/,$p' $ZSH/templates/pz.completion.template >> $ZSH/plugins/pz/_pz
-
         rm /tmp/src.$$
-        rm /tmp/subcmd.$$
 
-        echo "The autocompletion script for pz has been updated."
-        echo "Open a new zsh shell in order for the changes to takes effect."
+        echo
     fi
     return 0
 }
 
 function get_pwd_record_from_index_file {
     echo $(
-        grep -w $1 $ZSH/plugins/pz/_pz.index| \
+        grep -w $1 $HOME/_pz.index| \
         awk -F':' '{print $2}'
     )
 }
@@ -63,28 +62,6 @@ function get_password_store_directory () {
     else
         echo "$HOME/.password-store"
     fi
-}
-
-function share_passwords () {
-    local rcpt="$1"
-
-    local pwdD="$(get_password_store_directory)"
-
-    if [[ -n "$rcpt" ]]; then
-        find "$pwdD" -type f ! -path '*/.git/*' -name '*.gpg' -print0 |
-        while IFS= read -r -d '' f; do
-            local source_pwd_store_record="${${f%.*}#$pwdD/}"
-            local target_GPG_file="/tmp${${f%}#$pwdD}"
-            mkdir -p "/tmp${${f%/*}#$pwdD}"
-            pass "$source_pwd_store_record" | gpg -eo "$target_GPG_file" -r "$rcpt"
-            echo "$source_pwd_store_record => $target_GPG_file"
-        done
-    else
-        echo "Please pass the recipient's email address."
-        echo "Also, ensure that you provide a valid recipient's email address, as displayed in your GPG key list."
-        gpg -k
-    fi
-    return 0
 }
 
 function update_pass_to_be_auto-deleted_record() {
@@ -112,7 +89,7 @@ function register_retrieved_pass_to_be_auto-deleted() {
 }
 
 function pz {
-    valid_args=("--copy" "-c" "--display-password" "-d" "--edit" "-e" "--info" "-i" "--login" "-l" "--otp" "-o")
+    valid_args=("--copy" "-c" "--edit" "-e" "--info" "-i" "--login" "-l" "--otp" "-o")
     _pz::main $*
 }
 
@@ -152,9 +129,6 @@ function _pz::main {
                     echo $pwdRecord:
                     pass $pwdRecord|sed -n '2,$p'
                     return 0;;
-                --display-password|-d)
-                    pass $pwdRecord|head -1
-                    return 0;;
                 --login|-l)
                     cmd=$(
                     pass $pwdRecord| \
@@ -185,17 +159,9 @@ function _pz::main {
                         return 0
                     fi
                     ;;
-                --share|-s)
-                    share_passwords $2
-                    return 0;;
                 --kill|-k)
                     gpgconf --kill gpg-agent
                     echo "GPG cache entries cleared."
-                    return 0;;
-                --edit-all|-a)
-                    for i in $(pass grep ^|sed -n '/\x1b/p'|sed -n 's/\x1b\[[0-9;]*[sumJK]//g;s/.$//p');do
-                        pass edit $i
-                    done
                     return 0;;
                 --rebuild|-b)
                     reconstruct_auto_complete_script
