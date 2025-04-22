@@ -19,12 +19,10 @@ _pz() {
 		# Run the completion for the subcommand
 		case "${cmd}" in
 			--copy|--info|--edit|--login|--otp|-c|-i|-e|-l|-o)
-                subcommands=(
-                    # Change below content by following the same pattern to suit your password
-                    # store entries.
-                    $(cat $HOME/_pz.index)
-                )
-
+                subcommands=()
+                while IFS=: read -r name _ desc; do
+                    subcommands+=("$name:$desc")
+                done < $HOME/.pz.index
                 _describe -t commands 'pz' subcommands
 				;;
 		esac

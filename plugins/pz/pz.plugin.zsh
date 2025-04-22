@@ -17,8 +17,8 @@ function reconstruct_auto_complete_script {
 
         echo "\rLoading pass files with aliases...[$n]"
 
-        if [[ -f $HOME/_pz.index ]];then
-            rm $HOME/_pz.index
+        if [[ -f $HOME/.pz.index ]];then
+            rm $HOME/.pz.index
         fi
 
         while read l;do
@@ -32,7 +32,7 @@ function reconstruct_auto_complete_script {
                 i=$(echo "$l"|grep -i info|awk -F':' '{print $2}'|sed 's/^\ *//;s/\ *$//')
             fi
             if [[ ! -z "$a" && ! -z "$i" ]];then
-                echo "$a:$r" >> $HOME/_pz.index
+                echo "$a:$r:$i" >> $HOME/.pz.index
                 r=""
                 a=""
                 i=""
@@ -51,7 +51,7 @@ function reconstruct_auto_complete_script {
 
 function get_pwd_record_from_index_file {
     echo $(
-        grep -w $1 $HOME/_pz.index| \
+        grep -w $1 $HOME/.pz.index| \
         awk -F':' '{print $2}'
     )
 }
