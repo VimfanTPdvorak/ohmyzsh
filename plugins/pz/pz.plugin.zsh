@@ -89,15 +89,104 @@ function register_retrieved_pass_to_be_auto-deleted() {
 }
 
 function pz {
-    valid_args=("--copy" "-c" "--edit" "-e" "--info" "-i" "--login" "-l" "--otp" "-o")
+    valid_args=("--copy" "-c" "--edit" "-e" "--info" "-i" "--login" "-l" "--otp" "-o" "--add-credentials" "-a")
     _pz::main $*
+}
+
+function add_or_update_netrc_credentials {
+    if which pass > /dev/null;then
+        remoteAddr=$(pass git remote -v|head -1|awk -F/ '{print $3}')
+        protocol=$(pass git remote -v|head -1|awk -F'://' '{print $1}'|awk '{print $2}')
+
+        if [[ "$protocol" != "http" && "$protocol" != "https" ]];then
+            echo "It currently only support http or https protocol."
+            return 1
+        fi
+
+        if [[ -n $remoteAddr ]];then
+            if [[ "$remoteAddr" == "github.com" ]];then
+                echo "Sorry. github.com is not supported."
+                echo "You should use the gh CLI from github or the other method recommended by github."
+                return 1
+            else
+                if [[ ! -f /usr/bin/git-credential-netrc ]];then
+                    echo "Setting up the netrc script."
+                    sudo cp $ZSH/lib/git-credential-netrc /usr/bin
+                    sudo chmod a+x /usr/bin/git-credential-netrc
+                fi
+
+                currHelper=$(pass git config --get credential.helper)
+
+                if [[ -z $currHelper ]];then
+                    echo "Setting up pass git credential.helper to netrc."
+                    pass git config credential.helper "netrc -f ~/.netrc.gpg -v"
+                elif [[ ! "$currHelper" == "netrc"* ]];then
+                    echo "Your current git credential.helper has been set to:"
+                    echo $currHelper
+                    echo
+                    vared -p "Override it [y/n]? " -c t
+                    if [[ $t == "y" ]];then
+                        echo "Setting up pass git credential.helper to netrc."
+                        pass git config credential.helper "netrc -f ~/.netrc.gpg -v"
+                    else
+                        echo "Okay. Setting up the remote credentials has been canceled."
+                        return 1
+                    fi
+
+                fi
+
+                pwd=$(echo -n "$pwd"|sed 's/\\/\\\\/g')
+
+                newEntry="machine $remoteAddr"
+                newEntry="$newEntry\n login $username"
+                newEntry="$newEntry\n password $pwd"
+                newEntry="$newEntry\n protocol $protocol"
+
+                gpgId=$(gpg -K|grep ultimate|sed -n 's/[^<]*<//;s/>//p')
+
+                if [[ -z $gpgId ]];then
+                    echo "err: Ultimately trusted GPG ID was not found."
+                    return 1
+                fi
+
+                if [[ -f $HOME/.netrc.gpg ]];then
+                    echo "About to update the netrc configuration file."
+                    netrcContent=$(gpg -qd $HOME/.netrc.gpg|sed '/machine '"$remoteAddr"'/,/\sprotocol/d')
+                    if [[ $? -eq 0 ]];then
+                        rm -f $HOME/.netrc.gpg
+                    fi
+                else
+                    echo "About to create the netrc configuration file."
+                    netrcContent=
+                fi
+
+                if [[ $? -eq 0 ]];then
+                    netrcContent="$netrcContent\n$newEntry"
+
+                    eval "echo \"$netrcContent\"|gpg -eao $HOME/.netrc.gpg -r $gpgId"
+
+                    if [[ -f $HOME/.netrc.gpg ]];then
+                        echo "The netrc configuration file has been created/updated."
+                        echo "You can now pass git push your record to the server."
+                    fi
+                fi
+            fi
+        else
+            echo "You haven't added a git remote repository for the pass storage yet."
+            return 1
+        fi
+    else
+        echo "I have nothing to do. You haven't even installed the pass yet."
+        return 1
+    fi
+    return 0
 }
 
 function _pz::main {
     if [[ "${valid_args[@]}" =~ "${1}" ]];then
         if [[ -z "$2" ]];then
             echo "You'll need to provide the record's alias after the $1 option."
-            exit 1
+            return 1
         else
             pwdRecord=$(get_pwd_record_from_index_file $2)
         fi
@@ -165,6 +254,22 @@ function _pz::main {
                     return 0;;
                 --rebuild|-b)
                     reconstruct_auto_complete_script
+                    return 0;;
+                --add-credentials|-a)
+                    secret=$(pass $pwdRecord)
+                    pwd=$(echo $secret|head -1)
+                    username=$(echo $secret|grep -i "^\s*login:"|sed 's/login://i;s/\s//')
+                    if [[ -z $username ]];then
+                        echo "Err: The password file you selected has no \"Login:\" line in it."
+                        return 1
+                    else
+                        add_or_update_netrc_credentials
+                        if [[ $? -eq 0 ]];then
+                            return 0
+                        else
+                            return 1
+                        fi
+                    fi
                     return 0;;
                 *)
                     echo "Invalid option: $1"

@@ -18,7 +18,7 @@ _pz() {
 		shift words
 		# Run the completion for the subcommand
 		case "${cmd}" in
-			--copy|--info|--edit|--login|--otp|-c|-i|-e|-l|-o)
+			--copy|--info|--edit|--login|--otp|--add-credentials|-c|-i|-e|-l|-o|-a)
                 subcommands=()
                 while IFS=: read -r name _ desc; do
                     subcommands+=("$name:$desc")
@@ -42,6 +42,8 @@ _pz() {
             "-b:Reconstruct the autocomplete script. Run this command if you have added new Password Store records."
             "--kill:Kill gpg-agent (clear GPG cache entries)."
             "-k:Kill gpg-agent (clear GPG cache entries)."
+            "--add-credentials:Add git remote credentials."
+            "-a:Add git remote credentials."
         )
 
         _describe -t commands 'pz' subcommands
