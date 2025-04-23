@@ -48,7 +48,7 @@ function _gpgOpen::main {
 
         if [[ -f "$gpgFile" ]];then
             td=$(mktemp -d)
-            gpg -do $td/$gpgFN $gpgFile
+            gpg -qdo $td/$gpgFN $gpgFile
 
             if [[ ! -z "$theEditor" ]] && [[ -z $(which $theEditor|grep "not found") ]];then
                 cmd="$theEditor"
@@ -60,24 +60,32 @@ function _gpgOpen::main {
 
             vared -p "Press ENTER once you have finished working with the file." -c t
 
-            vared -p "Do you want to re-encrypt the file (y/n)? " -c yn
+            while [[ $yn != "y" && $yn != "Y" && $yn != "n" && $yn != "N" ]];do
+                yn=
+                vared -p "Do you want to re-encrypt the file (y/n)? " -c yn
+            done
             if [[ "$yn" = "y" || "$yn" = "Y" ]];then
                 IDs=""
                 for ID in $(gpg -d "${gpgFile}" > /dev/null 2>&1|\
                             sed -n 's/\(.*ID\ \)\(.*\),.*/\2/p');do
                     IDs="$IDs -r $ID"
                 done
-                rm "${gpgFile}"
-                cmdE="gpg -eao '$gpgFile' $IDs '$td/$gpgFN'"
+                rm -f "${gpgFile}"
+                cmdE="gpg -qeao '$gpgFile' $IDs '$td/$gpgFN'"
                 eval $cmdE
+                echo "The file should have been updated."
             fi
 
-            vared -p "Press enter to shred the decrypted file." -c t
-
             [[ "$osName" == "Darwin" ]] && cmd="gshred" || cmd="shred"
-            eval $cmd \"$td/$gpgFN\" --remove=wipesync
+
+            while [[ -f "$td/$gpgFN" ]];do
+                echo "Shredding the temporary file..."
+                eval $cmd \"$td/$gpgFN\" --remove=wipesync
+            done
 
             rmdir $td
+
+            echo "The temporary file has been shredded."
 
             unset t
             unset yn
