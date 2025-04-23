@@ -136,6 +136,11 @@ function add_or_update_netrc_credentials {
                 fi
 
                 pwd=$(echo -n "$pwd"|sed 's/\\/\\\\/g')
+                pwd=$(echo -n "$pwd"|sed 's/\$/\\$/g')
+                pwd=$(echo -n "$pwd"|sed 's/#/\\#/g')
+                pwd=$(echo -n "$pwd"|sed 's/@/\\@/g')
+                pwd=$(echo -n "$pwd"|sed 's/{/\\{/g')
+                pwd=$(echo -n "$pwd"|sed 's/}/\\}/g')
 
                 newEntry="machine $remoteAddr"
                 newEntry="$newEntry\n login $username"
@@ -161,7 +166,11 @@ function add_or_update_netrc_credentials {
                 fi
 
                 if [[ $? -eq 0 ]];then
-                    netrcContent="$netrcContent\n$newEntry"
+                    if [[ -n "$netrcContent" ]];then
+                        netrcContent="$netrcContent\n$newEntry"
+                    else
+                        netrcContent="$newEntry"
+                    fi
 
                     eval "echo \"$netrcContent\"|gpg -eao $HOME/.netrc.gpg -r $gpgId"
 
