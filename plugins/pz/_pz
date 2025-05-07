@@ -11,39 +11,41 @@
 
 _pz() {
     local -a subcommands
-	local cmd
-	if (( CURRENT > 2)); then
-		cmd=${words[2]}
-		(( CURRENT-- ))
-		shift words
-		# Run the completion for the subcommand
-		case "${cmd}" in
-			--copy|--info|--edit|--login|--otp|--add-credentials|-c|-i|-e|-l|-o|-a)
+    local cmd
+    if (( CURRENT > 2)); then
+        cmd=${words[2]}
+        (( CURRENT-- ))
+        shift words
+        # Run the completion for the subcommand
+        case "${cmd}" in
+            --copy|--info|--edit|--login|--otp|--add-credentials|-c|-i|-e|-l|-o|-a)
                 subcommands=()
                 while IFS=: read -r name _ desc; do
                     subcommands+=("$name:$desc")
                 done < $HOME/.pz.index
                 _describe -t commands 'pz' subcommands
-				;;
-		esac
+                ;;
+        esac
     else
         subcommands=(
-            "--copy:Copy a password record that matches passed string to the clipboard."
-            "-c:Copy a password record that matches passed string to the clipboard."
-            "--info:Display a password record information that matches passed string without showing its password."
-            "-i:Display a password record information that matches passed string without showing its password."
-            "--edit:Edit a password record that matches passed string."
-            "-e:Edit a password record that matches passed string."
-            "--login:Run the cmd command defined in the gpg file of the selected password store record's alias."
-            "-l:Run the cmd command defined in the gpg file of the selected password store record's alias."
-            "--otp:Prints OTP from password store record. Adds -c to copy to clipboard. Adds -q for QR code display."
-            "-o:Prints OTP from password store record. Adds -c to copy to clipboard. Adds -q for QR code display."
-            "--rebuild:Reconstruct the autocomplete script. Run this command if you have added new Password Store records."
-            "-b:Reconstruct the autocomplete script. Run this command if you have added new Password Store records."
+            "--help:Display usage info."
+            "-h:Display usage info."
+            "--copy:Copy matches alias pass' password."
+            "-c:Copy matches alias pass' password."
+            "--info:Display matches alias pass' file except its password."
+            "-i:Display matches alias pass' file except its password."
+            "--edit:Edit matches alias pass' file."
+            "-e:Edit matches alias pass' file."
+            "--login:Copy password and run cmd of matches alias pass' file."
+            "-l:Copy password and run cmd of matches alias pass' file."
+            "--otp:Prints OTP of matches alias pass' file. Adds -c to copy to clipboard. Adds -q for QR code display."
+            "-o:Prints OTP of matches alias pass' file. Adds -c to copy to clipboard. Adds -q for QR code display."
+            "--rebuild:Regenerate pz alias index file."
+            "-b:Regenerate pz alias index file."
             "--kill:Kill gpg-agent (clear GPG cache entries)."
             "-k:Kill gpg-agent (clear GPG cache entries)."
-            "--add-credentials:Add git remote credentials."
-            "-a:Add git remote credentials."
+            "--add-credentials:Add netrc credential helper based on given alias."
+            "-a:Add netrc credential helper based on given alias."
         )
 
         _describe -t commands 'pz' subcommands

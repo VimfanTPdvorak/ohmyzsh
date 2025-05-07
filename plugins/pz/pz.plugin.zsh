@@ -192,6 +192,28 @@ function add_or_update_netrc_credentials {
 }
 
 function _pz::main {
+    local usage=(
+        "Usage:"
+        "pz [-h, --help]"
+        "pz {-a, --add-credentials|-c, --copy|-e, --edit|-i, --info|-l, --login|-o, --otp} <alias>"
+        "pz {-k, --kill|-b, --rebuild}\n"
+        "-h --help                      Display this usage info"
+        "-a --add-credentials <alias>   Add netrc credential helper based on given alias"
+        "-c --copy <alias>              Copy matches alias pass' password"
+        "-e --edit <alias>              Edit matches alias pass' file"
+        "-i --info <alias>              Display matches alias pass' file except its password"
+        "-l --login <alias>             Copy password and run cmd of matches alias pass' file"
+        "-o --otp <alias>               Prints OTP of matches alias pass' file"
+        "                                Adds -c to copy OTP"
+        "                                Adds -q displays TOTP secret QR-Code"
+        "-k --kill                      Clear GPG cache entries"
+        "-b --rebuild                   Regenerate pz alias index file\n"
+        "Example:"
+        "1. Copy matches alias pass' password: pz -c sshLion"
+        "2. Print matches alias pass' otp    : pz -o otpLian"
+        "3. Copy matches alias pass' otp file: pz -o otpLion -c"
+    )
+
     if [[ "${valid_args[@]}" =~ "${1}" ]];then
         if [[ -z "$2" ]];then
             echo "You'll need to provide the record's alias after the $1 option."
@@ -219,6 +241,9 @@ function _pz::main {
                         pass -c $pwdRecord
                     fi
                     register_retrieved_pass_to_be_auto-deleted "$pwd"
+                    return 0;;
+                --help|-h)
+                    print -l $usage
                     return 0;;
                 --edit|-e)
                     pass edit $pwdRecord
