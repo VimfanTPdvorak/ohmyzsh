@@ -18,7 +18,7 @@ Sehingga default plugin OMZ yang terkonfigurasi adalah `git`, `starship`, `mw`,
 
 ## Pre-requisites
 
-- Sudah terinstall shell ZSH dan starship.
+- Sudah terinstall shell ZSH.
 - Bisa lakukan ini dahulu ataupun setelah melakukan instalasi OMZ ini:
     - Clone MWiki
     - Install Password Store

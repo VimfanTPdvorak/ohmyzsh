@@ -274,6 +274,13 @@ setup_color() {
   FMT_RESET=$(printf '\033[0m')
 }
 
+setup_starship() {
+    # Install starship
+    if ! which starship > /dev/null 2>&1; then
+        curl -sS https://starship.rs/install.sh | sh
+    fi
+}
+
 setup_ohmyzsh() {
   # Prevent the cloned repository from having insecure permissions. Failing to do
   # so causes compinit() calls to fail with "command not found: compdef" errors
@@ -533,6 +540,7 @@ EOF
     mkdir -p "$ZDOTDIR"
   fi
 
+  setup_starship
   setup_ohmyzsh
   setup_zshrc
   setup_shell
