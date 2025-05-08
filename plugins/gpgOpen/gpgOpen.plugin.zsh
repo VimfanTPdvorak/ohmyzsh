@@ -48,32 +48,58 @@ function _gpgOpen::main {
 
         if [[ -f "$gpgFile" ]];then
             td=$(mktemp -d)
-            gpg -qdo $td/$gpgFN $gpgFile
+            gpg -qdo $td/$gpgFN $gpgFile 2> /dev/null
 
-            if [[ ! -z "$theEditor" ]] && [[ -z $(which $theEditor|grep "not found") ]];then
-                cmd="$theEditor"
-            else
-                [[ "$osName" == "Darwin" ]] && cmd="open" || cmd="xdg-open"
+            if [[ ! $? -eq 0 ]];then
+                echo "Fail to decrypt file."
+                rmdir $td
+                return 1
             fi
 
-            eval $cmd \"$td/$gpgFN\"
+            ascPlayed=0
 
-            vared -p "Press ENTER once you have finished working with the file." -c t
+            if [[ "${gpgFN##*.}" == "bz2" ]];then
+                if which bunzip2 2> /dev/null 1>&2;then
+                    bunzip2 $td/$gpgFN
+                    if [[ -f "$td/${gpgFN%.*}" ]];then
+                        gpgFN="${gpgFN%.*}"
+                        if [[ "${gpgFN##*.}" == "cast" ]];then
+                            asciinema play "$td/$gpgFN"
+                            ascPlayed=1
+                        fi
+                    fi
+                else
+                    echo "bunzip2 not found. Please install bzip2 first."
+                    ascPlayed=1
+                fi
+            fi
 
-            while [[ $yn != "y" && $yn != "Y" && $yn != "n" && $yn != "N" ]];do
-                yn=
-                vared -p "Do you want to re-encrypt the file (y/n)? " -c yn
-            done
-            if [[ "$yn" = "y" || "$yn" = "Y" ]];then
-                IDs=""
-                for ID in $(gpg -d "${gpgFile}" > /dev/null 2>&1|\
-                            sed -n 's/\(.*ID\ \)\(.*\),.*/\2/p');do
+            if [[ $ascPlayed -eq 0 ]];then
+                if [[ ! -z "$theEditor" ]] && [[ -z $(which $theEditor|grep "not found") ]];then
+                    cmd="$theEditor"
+                else
+                    [[ "$osName" == "Darwin" ]] && cmd="open" || cmd="xdg-open"
+                fi
+
+                eval $cmd \"$td/$gpgFN\"
+
+                vared -p "Press ENTER once you have finished working with the file." -c t
+
+                while [[ $yn != "y" && $yn != "Y" && $yn != "n" && $yn != "N" ]];do
+                    yn=
+                    vared -p "Do you want to re-encrypt the file (y/n)? " -c yn
+                done
+                if [[ "$yn" = "y" || "$yn" = "Y" ]];then
+                    IDs=""
+                    for ID in $(gpg -d "${gpgFile}" > /dev/null 2>&1|\
+                        sed -n 's/\(.*ID\ \)\(.*\),.*/\2/p');do
                     IDs="$IDs -r $ID"
                 done
                 rm -f "${gpgFile}"
                 cmdE="gpg -qeao '$gpgFile' $IDs '$td/$gpgFN'"
                 eval $cmdE
                 echo "The file should have been updated."
+                fi
             fi
 
             [[ "$osName" == "Darwin" ]] && cmd="gshred" || cmd="shred"
