@@ -267,7 +267,19 @@ function _pz::main {
                         pwd=$(pass $pwdRecord|head -1)
                         pass -c $pwdRecord
                         register_retrieved_pass_to_be_auto-deleted "$pwd"
-                        eval "$cmd"
+                        cmdCount=$(echo $cmd|wc -l)
+                        if [[ $cmdCount -eq 1 ]];then
+                            eval "$cmd"
+                        else
+                            echo "Which command you want to executed?\n"
+                            echo $cmd|sed =|sed 'N;s/\n/ /'
+                            echo
+                            x=
+                            vared -p "Enter its number. Empty to cancel: " -c x
+                            if [[ -n "$x" && "$x" -ge 1 && "$x" -le "$cmdCount" ]];then
+                                eval "$(echo $cmd|sed -n $x,$x'p')"
+                            fi
+                        fi
                     fi
                     return 0;;
                 --otp|-o)
