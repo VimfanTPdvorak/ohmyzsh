@@ -50,10 +50,10 @@ function _gpgOpen::main {
             td=$(mktemp -d)
             gpg -qdo $td/$gpgFN $gpgFile 2> /dev/null
 
-            if [[ ! $? -eq 0 ]];then
+            if [[ ! -f $td/$gpgFN ]];then
                 echo "Fail to decrypt file."
                 rmdir $td
-                return 1
+                exit 1
             fi
 
             ascPlayed=0
