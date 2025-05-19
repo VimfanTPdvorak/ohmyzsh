@@ -4,7 +4,50 @@
 # Important:
 # Please read the comment sections at the top of the ~/tools/pz/_pz file.
 
-function reconstruct_auto_complete_script {
+ohtrailViewer() {
+    local ym="$(date +%Y/%m)"
+    local yn
+
+    vared -p "Enter an oh-trail short hostname [water, singa, potato, acorn, etc] " -c shost
+    vared -p "Enter data period [yyyy/mm] : " -c ym
+
+    echo "Retrieving asciicast and log from /asciicast/clients/$shost/$(date +%Y/%m)"
+
+    theFiles=$(ssh water "ls -1t /asciicast/clients/$shost/$ym 2> /dev/null")
+
+    if [[ $? -eq 0 ]];then
+        if [[ -z "$theFiles" ]];then
+            echo "The query is empty. The directory might not exist."
+        else
+            # Display menu with fzf and capture selection
+            selected=$(printf "%s\n" "${theFiles[@]}" | fzf --height=40% --reverse --prompt="Select a file: ")
+
+            scp water:/asciicast/clients/$shost/$ym/$selected /tmp
+
+            if [[ -f "/tmp/$selected" ]];then
+                echo "The selected file has been copied to /tmp/$selected."
+                vared -p "Would you like to view the file now [Y/n] ? " -c yn
+                if [[ $yn != "N" && $yn != "n" ]];then
+                    if [[ "$selected" =~ ^.*\.log\..*$ ]];then
+                        gpgOpen -f /tmp/$selected -e vim
+                    else
+                        gpgOpen -f /tmp/$selected
+                    fi
+                fi
+            fi
+        fi
+    else
+        echo "You might not have defined the 'Host water' in your ~/.ssh/config file."
+        echo "Define it like something like this (adjust the 'Hostname', 'Port', and 'User' accordingly):\n"
+        echo "Host water"
+        echo "    Hostname water.lumon.com"
+        echo "    Port 2255"
+        echo "    User your_user_name\n"
+        echo "Please configure it and try again."
+    fi
+}
+
+reconstruct_auto_complete_script() {
     if [ ! -f $ZSH/templates/pz.completion.template ];then
         echo "File $ZSH/templates/pz.completion.template doesn't exist"
     else
@@ -49,14 +92,14 @@ function reconstruct_auto_complete_script {
     return 0
 }
 
-function get_pwd_record_from_index_file {
+get_pwd_record_from_index_file() {
     echo $(
         grep -w $1 $HOME/.pz.index| \
         awk -F':' '{print $2}'
     )
 }
 
-function get_password_store_directory () {
+get_password_store_directory() {
     if [[ -n "$PASSWORD_STORE_DIR" ]]; then
         echo "$PASSWORD_STORE_DIR"
     else
@@ -64,12 +107,12 @@ function get_password_store_directory () {
     fi
 }
 
-function update_pass_to_be_auto-deleted_record() {
+update_pass_to_be_auto-deleted_record() {
     echo "${clip2pz}" | gpg -eao $HOME/.pz --yes \
         -r $(gpg -K|grep ultimate|sed 's/.*<\(.*\)>.*/\1/')
 }
 
-function register_retrieved_pass_to_be_auto-deleted() {
+register_retrieved_pass_to_be_auto-deleted() {
     if which cliphist > /dev/null 2>&1;then
         pwd=$1
         if [[ -n $pwd ]];then
@@ -88,12 +131,12 @@ function register_retrieved_pass_to_be_auto-deleted() {
     return 0
 }
 
-function pz {
+pz() {
     valid_args=("--copy" "-c" "--edit" "-e" "--info" "-i" "--login" "-l" "--otp" "-o" "--add-credentials" "-a")
     _pz::main $*
 }
 
-function add_or_update_netrc_credentials {
+add_or_update_netrc_credentials() {
     if which pass > /dev/null;then
         remoteAddr=$(pass git remote -v|head -1|awk -F/ '{print $3}')
         protocol=$(pass git remote -v|head -1|awk -F'://' '{print $1}'|awk '{print $2}')

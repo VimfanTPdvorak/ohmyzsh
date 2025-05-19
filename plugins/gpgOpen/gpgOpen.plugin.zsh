@@ -72,6 +72,9 @@ function _gpgOpen::main {
                     echo "bunzip2 not found. Please install bzip2 first."
                     ascPlayed=1
                 fi
+            elif [[ "${gpgFN##*.}" == "cast" ]];then
+                asciinema play "$td/$gpgFN"
+                ascPlayed=1
             fi
 
             if [[ $ascPlayed -eq 0 ]];then
@@ -83,22 +86,24 @@ function _gpgOpen::main {
 
                 eval $cmd \"$td/$gpgFN\"
 
-                vared -p "Press ENTER once you have finished working with the file." -c t
+                if [[ "${gpgFN##*.}" != "log" ]];then
+                    vared -p "Press ENTER once you have finished working with the file." -c t
 
-                while [[ $yn != "y" && $yn != "Y" && $yn != "n" && $yn != "N" ]];do
-                    yn=
-                    vared -p "Do you want to re-encrypt the file (y/n)? " -c yn
-                done
-                if [[ "$yn" = "y" || "$yn" = "Y" ]];then
-                    IDs=""
-                    for ID in $(gpg -d "${gpgFile}" > /dev/null 2>&1|\
-                        sed -n 's/\(.*ID\ \)\(.*\),.*/\2/p');do
-                    IDs="$IDs -r $ID"
-                done
-                rm -f "${gpgFile}"
-                cmdE="gpg -qeao '$gpgFile' $IDs '$td/$gpgFN'"
-                eval $cmdE
-                echo "The file should have been updated."
+                    while [[ $yn != "y" && $yn != "Y" && $yn != "n" && $yn != "N" ]];do
+                        yn=
+                        vared -p "Do you want to re-encrypt the file (y/n)? " -c yn
+                    done
+                    if [[ "$yn" = "y" || "$yn" = "Y" ]];then
+                        IDs=""
+                        for ID in $(gpg -d "${gpgFile}" > /dev/null 2>&1|\
+                            sed -n 's/\(.*ID\ \)\(.*\),.*/\2/p');do
+                            IDs="$IDs -r $ID"
+                        done
+                        rm -f "${gpgFile}"
+                        cmdE="gpg -qeao '$gpgFile' $IDs '$td/$gpgFN'"
+                        eval $cmdE
+                        echo "The file should have been updated."
+                    fi
                 fi
             fi
 
