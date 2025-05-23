@@ -134,6 +134,7 @@ register_retrieved_pass_to_be_auto-deleted() {
 pz() {
     valid_args=("--copy" "-c" "--edit" "-e" "--info" "-i" "--login" "-l" "--otp" "-o" "--add-credentials" "-a")
     _pz::main $*
+    unset pwd gitPwd
 }
 
 add_or_update_netrc_credentials() {
@@ -162,7 +163,7 @@ add_or_update_netrc_credentials() {
 
                 if [[ -z $currHelper ]];then
                     echo "Setting up pass git credential.helper to netrc."
-                    pass git config credential.helper "netrc -f ~/.netrc.gpg -v"
+                    pass git config credential.helper "netrc -f ~/.netrc.gpg"
                 elif [[ ! "$currHelper" == "netrc"* ]];then
                     echo "Your current git credential.helper has been set to:"
                     echo $currHelper
@@ -170,7 +171,7 @@ add_or_update_netrc_credentials() {
                     vared -p "Override it [y/n]? " -c t
                     if [[ $t == "y" ]];then
                         echo "Setting up pass git credential.helper to netrc."
-                        pass git config credential.helper "netrc -f ~/.netrc.gpg -v"
+                        pass git config credential.helper "netrc -f ~/.netrc.gpg"
                     else
                         echo "Okay. Setting up the remote credentials has been canceled."
                         return 1
@@ -178,16 +179,17 @@ add_or_update_netrc_credentials() {
 
                 fi
 
-                pwd=$(echo -n "$pwd"|sed 's/\\/\\\\/g')
-                pwd=$(echo -n "$pwd"|sed 's/\$/\\$/g')
-                pwd=$(echo -n "$pwd"|sed 's/#/\\#/g')
-                pwd=$(echo -n "$pwd"|sed 's/@/\\@/g')
-                pwd=$(echo -n "$pwd"|sed 's/{/\\{/g')
-                pwd=$(echo -n "$pwd"|sed 's/}/\\}/g')
+                # Escaping generated password for netrc
+                gitPwd=${pwd//\\/\\\\}
+                gitPwd=${gitPwd//\$/\\$}
+                gitPwd=${gitPwd//\#/\\#}
+                gitPwd=${gitPwd//\@/\\@}
+                gitPwd=${gitPwd//\{/\\\{}
+                gitPwd=${gitPwd//\}/\\\}}
 
                 newEntry="machine $remoteAddr"
                 newEntry="$newEntry\n login $username"
-                newEntry="$newEntry\n password $pwd"
+                newEntry="$newEntry\n password "$gitPwd
                 newEntry="$newEntry\n protocol $protocol"
 
                 gpgId=$(gpg -K|grep ultimate|sed -n 's/[^<]*<//;s/>//p')
@@ -210,9 +212,9 @@ add_or_update_netrc_credentials() {
 
                 if [[ $? -eq 0 ]];then
                     if [[ -n "$netrcContent" ]];then
-                        netrcContent="$netrcContent\n$newEntry"
+                        netrcContent="$netrcContent\n"$newEntry
                     else
-                        netrcContent="$newEntry"
+                        netrcContent=$newEntry
                     fi
 
                     eval "echo \"$netrcContent\"|gpg -eao $HOME/.netrc.gpg -r $gpgId"
