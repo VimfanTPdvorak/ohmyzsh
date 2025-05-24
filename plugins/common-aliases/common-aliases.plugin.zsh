@@ -78,6 +78,8 @@ if is-at-least 4.2.0; then
     alias -s djvu=djview
     alias -s {asc,gpg}='gpgOpen -f'
     alias -s mp4='mpv --vo=kitty'
+    alias -s cast='asciinema play'
+    alias -s {txt,prg,spr,wiki,md}='vim'
 
     #list whats inside packed file
     alias -s zip="unzip -l"
