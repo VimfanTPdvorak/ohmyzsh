@@ -61,7 +61,7 @@ reconstruct_auto_complete_script() {
         echo "\rLoading pass files with aliases...[$n]"
 
         if [[ -f $HOME/.pz.index ]];then
-            rm $HOME/.pz.index
+            rm -f $HOME/.pz.index
         fi
 
         while read l;do
@@ -85,7 +85,7 @@ reconstruct_auto_complete_script() {
             echo -ne "\rReconstructing pz's auto-complete index...[$m/$n ($p%)]"
         done < /tmp/src.$$
 
-        rm /tmp/src.$$
+        rm -f /tmp/src.$$
 
         echo
     fi
