@@ -186,6 +186,7 @@ add_or_update_netrc_credentials() {
                 gitPwd=${gitPwd//\@/\\@}
                 gitPwd=${gitPwd//\{/\\\{}
                 gitPwd=${gitPwd//\}/\\\}}
+                gitPwd=${gitPwd//\"/\\\"}
 
                 newEntry="machine $remoteAddr"
                 newEntry="$newEntry\n login $username"
