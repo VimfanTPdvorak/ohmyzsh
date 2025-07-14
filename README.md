@@ -33,5 +33,30 @@ Sehingga default plugin OMZ yang terkonfigurasi adalah `git`, `starship`, `mw`,
     ```
 2. Jalankan perintah ini untuk install OMZ:
     ```bash
-    sh -c "$(curl -fsSL https://panda.apikkoho.com/Iron.Man/ohmyzsh/raw/branch/office/tools/install.sh)"
+    sh -c "$(curl -fsSL https://panda.apikkoho.com/Iron.Man/ohmyzsh/raw/branch/main/tools/install.sh)"
     ```
+
+## Penambahan default plugin ohmyzsh (14 Juli 2025)
+
+Untuk lebih memudahkan lagi menjalankan beberapa perintah melalui CLI, maka kita
+tambahkan lagi beberapa plugin berikut ini sebagai default plugin di `~/.zshrc`
+sebagai berikut:
+
+- common-aliases: Detail konfigurasi-nya bisa dilihat di
+  `~/.oh-my-zsh/plugins/common-aliases/common-aliases.plugin.zsh`. Salah satu
+  alias yang ada pada plugin ini adalah alias sufix untuk memungkinkan membuka
+  file terenkripsi dengan GPG dengan gpgOpen dengan cara langsung mengetikkan
+  saja fullpath file tersebut. Contohnya, bila ada file `/tmp/file.pdf.asc`, maka
+  bisa ketik `/tmp/file.pdf.asc` dan tekan enter. Hasilnya akan sama seperti
+  mengetikan: `gpgOpen -f /tmp/file.pdf.asc`.
+- kubectl: Auto-complete untuk perintah kubectl
+- minikube: Auto-complete untuk perintah minikube
+- ansible: Auto-complete untuk perintah ansible
+
+Bagi yang telah menginstall plugins ini, untuk menambahkan plugins tersebut,
+edit file `~/.zshrc` dan tambahkan line yang diawalin dengan plugins= menjadi
+seperti ini:
+
+```
+plugins=(git vi-mode starship pz mw gpgOpen common-aliases kubectl minikube ansible)
+```
