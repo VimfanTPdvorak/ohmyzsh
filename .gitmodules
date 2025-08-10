@@ -4,3 +4,6 @@
 [submodule "plugins/zsh-256color"]
 	path = plugins/zsh-256color
 	url = https://github.com/chrissicool/zsh-256color
+[submodule "plugins/zsh-autosuggestions"]
+	path = plugins/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions
