@@ -283,6 +283,13 @@ setup_starship() {
     fi
 }
 
+setup_fzf() {
+    # Install fzf
+    if ! command_exists fzf;then
+        sudo apt-get update -y && sudo apt-get install -y fzf
+    fi
+}
+
 setup_ohmyzsh() {
   # Prevent the cloned repository from having insecure permissions. Failing to do
   # so causes compinit() calls to fail with "command not found: compdef" errors
@@ -344,7 +351,7 @@ setup_zshrc() {
       echo "${FMT_YELLOW}Found ${zdot}/.zshrc.${FMT_RESET} ${FMT_GREEN}Keeping...${FMT_RESET}"
       return
     fi
-    
+
     if [ $OVERWRITE_CONFIRMATION != "no" ]; then
       # Ask user for confirmation before backing up and overwriting
       echo "${FMT_YELLOW}Found ${zdot}/.zshrc."
@@ -563,6 +570,7 @@ EOF
   fi
 
   setup_starship
+  setup_fzf
   setup_ohmyzsh
   setup_zshrc
   setup_shell
