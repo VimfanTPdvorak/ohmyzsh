@@ -37,11 +37,11 @@ ohtrailViewer() {
             fi
         fi
     else
-        echo "You might not have defined the 'Host water' in your ~/.ssh/config file."
-        echo "Define it like something like this (adjust the 'Hostname', 'Port', and 'User' accordingly):\n"
+        echo "\nYou need to define the host alias 'water' in your ~/.ssh/config file first."
+        echo "Define it like this (adjust 'Hostname', 'Port', and 'User' as needed):\n"
         echo "Host water"
-        echo "    Hostname water.lumon.com"
-        echo "    Port 2255"
+        echo "    Hostname water.the_actual_domain_name"
+        echo "    Port the_actual_port_number"
         echo "    User your_user_name\n"
         echo "Please configure it and try again."
     fi
