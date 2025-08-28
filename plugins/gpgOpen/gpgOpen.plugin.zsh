@@ -19,6 +19,29 @@ function gpgOpen {
     _gpgOpen::main
 }
 
+command_exists() {
+  command -v "$@" >/dev/null 2>&1
+}
+
+hasAsciinema() {
+    if command_exists asciinema;then
+        return 0
+    else
+        local yn
+        vared -p  "You don't have asciinema installed yet. Would you like to install it now [Y/n] ? " -c yn
+        if [[ $yn != "N" && $yn != "n" ]];then
+            sudo apt-get update -y && sudo apt-get install -y asciinema
+            if command_exists asciinema;then
+                return 0
+            else
+                return 1
+            fi
+        else
+            return 1
+        fi
+    fi
+}
+
 function _gpgOpen::main {
     local usage=(
         "Usage:"
@@ -63,7 +86,7 @@ function _gpgOpen::main {
                     bunzip2 $td/$gpgFN
                     if [[ -f "$td/${gpgFN%.*}" ]];then
                         gpgFN="${gpgFN%.*}"
-                        if [[ "${gpgFN##*.}" == "cast" ]];then
+                        if [[ "${gpgFN##*.}" == "cast" ]] && hasAsciinema;then
                             asciinema play "$td/$gpgFN"
                             ascPlayed=1
                         fi
@@ -72,7 +95,7 @@ function _gpgOpen::main {
                     echo "bunzip2 not found. Please install bzip2 first."
                     ascPlayed=1
                 fi
-            elif [[ "${gpgFN##*.}" == "cast" ]];then
+            elif [[ "${gpgFN##*.}" == "cast" ]] && hasAsciinema;then
                 asciinema play "$td/$gpgFN"
                 ascPlayed=1
             fi
